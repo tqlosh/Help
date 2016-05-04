@@ -1,0 +1,53 @@
+
+public class MinMaxAI {
+
+	public static int[] makeMove(Board board, int currentPlayerColor, int maxingPlayerColor){
+
+		int score = 0;
+		int[] moveIndex;
+		if (Rules.gameOver(board)[0]==1){
+			if(Rules.gameOver(board)[1] == maxingPlayerColor){
+				score = 1;
+			} else if(Rules.gameOver(board)[1] == Math.abs(maxingPlayerColor-1)){
+				score = -1;
+			} else{
+				score = 0;
+			}
+		}else{
+			int[][] moves = board.availableMoves(board, currentPlayerColor);
+			int[] allScores = new int[moves.length];
+			for(int x = 0; x<moves.length; x++){
+				Board temp = board;
+				temp.makeMove(moves[x], temp);
+				allScores[x]=makeMove(temp,Math.abs(maxingPlayerColor-1), maxingPlayerColor);
+			}
+			if(currentPlayerColor == maxingPlayerColor){
+				for(int x = 0; x<allScores.length; x++){
+					if(score < allScores[x]){
+						score = allScores[x];
+					}
+				}
+				for(int x = 0; x<allScores.length; x++){
+					if(score = allScores[x]){
+						moveIndex = add(x,moveIndex);
+					}
+				}
+				
+			}
+		}
+	}
+	
+	public static int[] add(int item, int[] array){
+		int[][] newArray= new int[array.length+1][6];
+
+		if(array.length > 0){
+			for(int i=0; i<array.length; i++){
+				newArray[i]=array[i];
+			}
+		}
+
+		newArray[array.length]= item;
+		return newArray;
+	}
+
+}

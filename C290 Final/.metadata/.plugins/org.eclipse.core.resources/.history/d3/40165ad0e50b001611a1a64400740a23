@@ -1,0 +1,327 @@
+import java.util.Arrays;
+
+public class Board {
+
+	static Pieces pieces = new Pieces();
+	static int rows = 8;
+	static int columns = 24;
+	static Checkers[][] board = new Checkers[rows][columns];
+	static int i = 0;
+	static int j = 36;
+	static int turnKeeper = 0;
+
+	public Board(){
+		this.rows = 8;
+		this.columns = 24;
+		this.turnKeeper = 0;
+	}
+
+	public static void doMove(int[] move, Board board, int kingPosition){
+		//makeMove
+		if(move[4] == 1){
+			board.board[move[2]][move[3]] = board.board[move[0]][move[1]];
+			board.board[move[0]][move[1]] = null;
+			board.board[move[2] + (move[0]-move[2])/2][move[3] + (move[1]-move[3])/2] = null;
+
+			//check for king
+			if(move[2] == kingPosition){
+				board.board[move[2]][move[3]].isKing = true;
+				System.out.println("King Me!");
+			}
+
+			boolean[] skipAgain = Rules.validate(move[2], move[3], move[2]+2, move[3]+2, board, board.turnKeeper%2);
+			boolean[] skipAgain1 = Rules.validate(move[2], move[3], move[2]+2, move[3]-2, board, board.turnKeeper%2);
+			boolean[] skipAgain2 = Rules.validate(move[2], move[3], move[2]-2, move[3]+2, board, board.turnKeeper%2);
+			boolean[] skipAgain3 = Rules.validate(move[2], move[3], move[2]-2, move[3]-2, board, board.turnKeeper%2);
+			int[] newMove = {move[2],move[3],move[2]+2,move[3]+2,1,move[5]+1};
+			int[] newMove1 = {move[2],move[3],move[2]+2,move[3]-2,1,move[5]+1};
+			int[] newMove2 = {move[2],move[3],move[2]-2,move[3]+2,1,move[5]+1};
+			int[] newMove3 = {move[2],move[3],move[2]-2,move[3]-2,1,move[5]+1};
+
+			while(skipAgain[0]==true || skipAgain1[0]==true 
+					|| skipAgain2[0]==true || skipAgain3[0]==true){
+
+				if(skipAgain[0] == true){
+					System.out.println("You have a double jump!");
+					AIRandom.add(newMove);
+					System.out.println(newMove[0]+","+newMove[1]+" "+newMove[2]+","+newMove[3]+" "+newMove[5]);
+					board.board[newMove[2]][newMove[3]] = board.board[newMove[0]][newMove[1]];
+					board.board[newMove[0]][newMove[1]] = null;
+					board.board[newMove[0]+1][newMove[1]+1] = null;
+					if(newMove[2] == kingPosition){
+						board.board[newMove[2]][newMove[3]].isKing = true;
+						System.out.println("King Me!");
+					}
+					newMove[0] = newMove[2];
+					newMove[1] = newMove[3];
+					newMove[2] = newMove[2]+2;
+					newMove[3] = newMove[3]+2;
+					newMove[4] = 1;
+					newMove[5] = newMove[5]+1;
+					AIRandom.turnCount++;
+				} else if(skipAgain1[0] == true){
+					System.out.println("You have a double jump!");
+					AIRandom.add(newMove1);
+					System.out.println(newMove1[0]+","+newMove1[1]+" "+newMove1[2]+","+newMove1[3]+" "+newMove1[5]);
+					board.board[newMove1[2]][newMove1[3]] = board.board[newMove1[0]][newMove1[1]];
+					board.board[newMove1[0]][newMove1[1]] = null;
+					board.board[newMove1[0]+1][newMove1[1]-1] = null;
+					if(newMove1[2] == kingPosition){
+						board.board[newMove1[2]][newMove1[3]].isKing = true;
+						System.out.println("King Me!");
+					}
+					newMove1[0] = newMove1[2];
+					newMove1[1] = newMove1[3];
+					newMove1[2] = newMove1[2]+2;
+					newMove1[3] = newMove1[3]-2;
+					newMove1[4] = 1;
+					newMove1[5] = newMove1[5]+1;
+					AIRandom.turnCount++;
+				} else if(skipAgain2[0] == true){
+					System.out.println("You have a double jump!");
+					AIRandom.add(newMove2);
+					System.out.println(newMove2[0]+","+newMove2[1]+" "+newMove2[2]+","+newMove2[3]+" "+newMove2[5]);
+					board.board[newMove2[2]][newMove2[3]] = board.board[newMove2[0]][newMove2[1]];
+					board.board[newMove2[0]][newMove2[1]] = null;
+					board.board[newMove2[0]-1][newMove2[1]+1] = null;
+					if(newMove2[2] == kingPosition){
+						board.board[newMove2[2]][newMove2[3]].isKing = true;
+						System.out.println("King Me!");
+					}
+					newMove2[0] = newMove2[2];
+					newMove2[1] = newMove2[3];
+					newMove2[2] = newMove2[2]-2;
+					newMove2[3] = newMove2[3]+2;
+					newMove2[4] = 1;
+					newMove2[5] = newMove2[5]+1;
+					AIRandom.turnCount++;
+				} else if(skipAgain3[0] == true){
+					System.out.println("You have a double jump!");
+					AIRandom.add(newMove3);
+					System.out.println(newMove3[0]+","+newMove3[1]+" "+newMove3[2]+","+newMove3[3]+" "+newMove3[5]);
+					board.board[newMove3[2]][newMove3[3]] = board.board[newMove3[0]][newMove3[1]];
+					board.board[newMove3[0]][newMove3[1]] = null;
+					board.board[newMove3[0]-1][newMove3[1]-1] = null;
+					if(move[2] == kingPosition){
+						board.board[newMove3[2]][newMove3[3]].isKing = true;
+						System.out.println("King Me!");
+					}
+					newMove3[0] = newMove3[2];
+					newMove3[1] = newMove3[3];
+					newMove3[2] = newMove3[2]-2;
+					newMove3[3] = newMove3[3]-2;
+					newMove3[4] = 1;
+					newMove3[5] = newMove3[5]+1;
+					AIRandom.turnCount++;
+				}
+				skipAgain = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], board, board.turnKeeper%2);
+				skipAgain1 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], board, board.turnKeeper%2);
+				skipAgain2 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], board, board.turnKeeper%2);
+				skipAgain3 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], board, board.turnKeeper%2);
+			}
+		}else{
+			board.board[move[2]][move[3]] = board.board[move[0]][move[1]];
+			board.board[move[0]][move[1]] = null;
+			//check for king
+			if(move[2] == kingPosition){
+				board.board[move[2]][move[3]].isKing = true;
+				System.out.println("King Me!");
+			}
+		}
+	}
+
+	public static void populate(){
+		for(int x = 0; x < rows; x++){
+			for(int y = 0; y < columns; y++){
+				if(x < 3){
+					if(y%2 == 0 && x%2 == 0){
+						board[x][y] = pieces.checkerPiece[i];
+						i++;
+					}else if(y%2 == 1 && x%2 == 1){
+						board[x][y] = pieces.checkerPiece[i];
+						i++;
+					}
+				}else if(x > 4){
+					if(y%2 == 0 && x%2 == 0){
+						board[x][y] = pieces.checkerPiece[j];
+						j++;
+					}else if(y%2 == 1 && x%2 == 1){
+						board[x][y] = pieces.checkerPiece[j];
+						j++;
+					}
+				}
+			}
+		}
+	}
+
+	//	public static int[][] availableMove(Board board, int color){
+	//		int[][] availableMoves = {};
+	//		int[] move = new int[5];
+	//		for(int x = 0; x<board.rows; x++){
+	//			for(int y = 0; y<board.columns; y++){
+	//				
+	//				for(int a = 0; a<board.rows; a++){
+	//					for(int b = 0; b<board.columns; b++){
+	//						//System.out.println(x+","+y+" "+a+","+b);
+	//						boolean[] check = Rules.validate(x, y, a, b, board, color);
+	//						//System.out.println(""+check[0]);
+	//						if(check[0] == true){
+	//							if(check[1]==true){
+	//								move[0] = x;
+	//								move[1] = y;
+	//								move[2] = a;
+	//								move[3] = b;
+	//								move[4] = 1;
+	//							}else{
+	//								move[0] = x;
+	//								move[1] = y;
+	//								move[2] = a;
+	//								move[3] = b;
+	//								move[4] = 0;
+	//							}
+	//							//System.out.println(move[0]+","+move[1]+" "+move[2]+","+move[3]);
+	//							availableMoves = add(move, availableMoves);
+	//							
+	////							for(int q = 0; q<availableMoves.length; q++){
+	////								System.out.println("\n"+availableMoves[q][0]+","+availableMoves[q][1]+" "+availableMoves[q][2]+","+availableMoves[q][3]+"\n");
+	////							}
+	//						}
+	//					}
+	//				}
+	//
+	//			}
+	//		}
+	//		return  availableMoves;
+	//	}
+
+	public static int[][] availableMove(Board board, int color){
+		int[][] availableMoves = {};
+		int[] move = new int[5];
+		for(int x = 0; x<board.rows; x++){
+			for(int y = 0; y<board.columns; y++){
+				boolean[] check = Rules.validate(x, y, x+1, y+1, board, color);
+				boolean[] check1 = Rules.validate(x, y, x+1, y-1, board, color);
+				boolean[] check2 = Rules.validate(x, y, x-1, y+1, board, color);
+				boolean[] check3 = Rules.validate(x, y, x-1, y-1, board, color);
+				boolean[] check4 = Rules.validate(x, y, x+2, y+2, board, color);
+				boolean[] check5 = Rules.validate(x, y, x+2, y-2, board, color);
+				boolean[] check6 = Rules.validate(x, y, x-2, y+2, board, color);
+				boolean[] check7 = Rules.validate(x, y, x-2, y-2, board, color);
+				if(check[0]==true){
+					move[0]=x;
+					move[1]=y;
+					move[2]=x+1;
+					move[3]=y+1;
+					move[4]=0;
+					if(check[1]==true){
+						move[4]=1;
+					}
+					availableMoves = add(move, availableMoves);
+				}
+				if(check1[0]==true){
+					move[0]=x;
+					move[1]=y;
+					move[2]=x+1;
+					move[3]=y-1;
+					move[4]=0;
+					if(check[1]==true){
+						move[4]=1;
+					}
+					availableMoves = add(move, availableMoves);
+				}
+				if(check2[0]==true){
+					move[0]=x;
+					move[1]=y;
+					move[2]=x-1;
+					move[3]=y+1;
+					move[4]=0;
+					if(check[1]==true){
+						move[4]=1;
+					}
+					availableMoves = add(move, availableMoves);
+				}
+				if(check3[0]==true){
+					move[0]=x;
+					move[1]=y;
+					move[2]=x-1;
+					move[3]=y-1;
+					move[4]=0;
+					if(check[1]==true){
+						move[4]=1;
+					}
+					availableMoves = add(move, availableMoves);
+				}
+				if(check4[0]==true){
+					move[0]=x;
+					move[1]=y;
+					move[2]=x+2;
+					move[3]=y+2;
+					move[4]=0;
+					if(check[1]==true){
+						move[4]=1;
+					}
+					availableMoves = add(move, availableMoves);
+				}
+				if(check5[0]==true){
+					move[0]=x;
+					move[1]=y;
+					move[2]=x+2;
+					move[3]=y-2;
+					move[4]=0;
+					if(check[1]==true){
+						move[4]=1;
+					}
+					availableMoves = add(move, availableMoves);
+				}
+				if(check6[0]==true){
+					move[0]=x;
+					move[1]=y;
+					move[2]=x-2;
+					move[3]=y+2;
+					move[4]=0;
+					if(check[1]==true){
+						move[4]=1;
+					}
+					availableMoves = add(move, availableMoves);
+				}
+				if(check7[0]==true){
+					move[0]=x;
+					move[1]=y;
+					move[2]=x-2;
+					move[3]=y-2;
+					move[4]=0;
+					if(check[1]==true){
+						move[4]=1;
+					}
+					availableMoves = add(move, availableMoves);
+				}
+				for(int q = 0; q<availableMoves.length; q++){
+					for(int m = 0; m<availableMoves[0].length; m++){
+						System.out.println(availableMoves[q][m]+","+availableMoves[q][m]+" "+availableMoves[q][m]+","+availableMoves[q][m]+"\n");
+					}
+				}
+			}
+		}
+//		System.out.println(availableMoves[1][0]+","+availableMoves[1][1]+" "+availableMoves[1][2]+","+availableMoves[1][3]+"\n");
+
+//		for(int q = 0; q<availableMoves.length; q++){
+//			System.out.println(availableMoves[q][0]+","+availableMoves[q][1]+" "+availableMoves[q][2]+","+availableMoves[q][3]+"\n");
+//			}
+		return availableMoves;
+	}
+
+	public static int[][] add(int[] newMove, int[][] availableTurns){
+		int[][] newAvailableTurns= new int[availableTurns.length+1][6];
+
+		if(availableTurns.length > 0){
+			for(int i=0; i<availableTurns.length; i++){
+				newAvailableTurns[i]=availableTurns[i];
+			}
+		}
+
+		newAvailableTurns[availableTurns.length]= newMove;
+		return newAvailableTurns;
+	}
+
+
+}

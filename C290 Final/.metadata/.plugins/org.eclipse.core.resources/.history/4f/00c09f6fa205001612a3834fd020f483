@@ -1,0 +1,90 @@
+import java.util.Arrays;
+
+public class Board {
+
+	static Pieces pieces = new Pieces();
+	static int rows = 8;
+	static int columns = 24;
+	static Checkers[][] board = new Checkers[rows][columns];
+	static int i = 0;
+	static int j = 36;
+	static int turnKeeper = 0;
+
+	public Board(){
+		this.rows = 8;
+		this.columns = 24;
+		this.turnKeeper = 0;
+	}
+
+	public static void populate(){
+		for(int x = 0; x < rows; x++){
+			for(int y = 0; y < columns; y++){
+				if(x < 3){
+					if(y%2 == 0 && x%2 == 0){
+						board[x][y] = pieces.checkerPiece[i];
+						i++;
+					}else if(y%2 == 1 && x%2 == 1){
+						board[x][y] = pieces.checkerPiece[i];
+						i++;
+					}
+				}else if(x > 4){
+					if(y%2 == 0 && x%2 == 0){
+						board[x][y] = pieces.checkerPiece[j];
+						j++;
+					}else if(y%2 == 1 && x%2 == 1){
+						board[x][y] = pieces.checkerPiece[j];
+						j++;
+					}
+				}
+			}
+		}
+	}
+
+	public static int[][] availableMoves(Board board, int color){
+		int[][] availableMoves = {};
+		int[] move = new int[5];
+		for(int x = 0; x<board.rows; x++){
+			for(int y = 0; y<board.columns; y++){
+				
+				for(int a = 0; a<board.rows; a++){
+					for(int b = 0; b<board.columns; b++){
+						boolean[] check = Rules.validate(x, y, a, b, board, color);
+						if(check[0] == true){
+							if(check[1]==true){
+								move[0] = x;
+								move[1] = y;
+								move[2] = a;
+								move[3] = b;
+								move[4] = 1;
+							}else{
+								move[0] = x;
+								move[1] = y;
+								move[2] = a;
+								move[3] = b;
+								move[4] = 0;
+							}
+							availableMoves = add(move, availableMoves);
+						}
+					}
+				}
+
+			}
+		}
+		return  availableMoves;
+	}
+
+	public static int[][] add(int[] newMove, int[][] availableTurns){
+		int[][] newAvailableTurns= new int[availableTurns.length+1][6];
+
+		if(availableTurns.length > 0){
+			for(int i=0; i<availableTurns.length; i++){
+				newAvailableTurns[i]=availableTurns[i];
+			}
+		}
+
+		newAvailableTurns[availableTurns.length]= newMove;
+		return newAvailableTurns;
+	}
+
+
+}

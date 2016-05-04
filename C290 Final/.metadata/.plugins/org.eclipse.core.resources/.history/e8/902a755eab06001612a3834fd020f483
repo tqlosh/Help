@@ -1,0 +1,50 @@
+
+public class MMAI {
+
+	public static int makeMove(Board board, int currentPlayerColor, int maxingPlayerColor){
+		int score = 0;
+		int bestScore;
+		boolean gameOver;
+
+		if (Rules.gameOver(board)[0]==1){
+			return score;
+		}
+		int[][] availableMoves = board.availableMoves(board, currentPlayerColor);
+		if(currentPlayerColor == maxingPlayerColor){
+			// find max
+			bestScore = -10000;
+			for(int x = 0; x<availableMoves.length; x++){
+				Board temp = board;
+				if(currentPlayerColor == maxingPlayerColor){
+					Board.doMove(availableMoves[x], temp, 7);
+				}else{
+					Board.doMove(availableMoves[x], temp, 0);
+				}
+				score = makeMove(temp, Math.abs(maxingPlayerColor-1), maxingPlayerColor);
+				if (score > bestScore){
+					bestScore = score;
+				}
+			}
+			return bestScore;
+		}
+		else{
+			// find min
+			bestScore = 10000;
+			for(int x = 0; x<availableMoves.length; x++){
+				Board temp = board;
+				if(currentPlayerColor == maxingPlayerColor){
+					Board.doMove(availableMoves[x], temp, 7);
+				}else{
+					Board.doMove(availableMoves[x], temp, 0);
+				}
+				score = makeMove(temp, Math.abs(maxingPlayerColor-1), maxingPlayerColor);
+				if (score < bestScore){
+					bestScore = score;
+				}
+				return bestScore;
+			}
+		}
+		return bestScore;
+		
+	}
+}

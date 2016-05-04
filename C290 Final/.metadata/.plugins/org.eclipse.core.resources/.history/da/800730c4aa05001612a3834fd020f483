@@ -1,0 +1,844 @@
+import java.util.Scanner;
+
+
+public class Runner {
+
+	public static void main(String[] args) {
+
+		//create scanner and board objects
+		Scanner scanner = new Scanner(System.in);
+		Board myBoard = new Board();
+
+
+		//populate my board and show board
+		myBoard.populate();
+
+		//boolean to run the game
+		boolean gameOver = false;
+
+		//Ask what player types are playing
+		System.out.println("Please type: \n1 for pass and play\n2 for player vs randomAI\n3 for player vs basicAI\n4 for AI vs AI");
+		int playerType = scanner.nextInt();
+
+		if(playerType == 1){
+			System.out.println(textView(myBoard));
+			while(gameOver == false){
+				//variables and while loop to check for double skip
+				boolean[] valid = {false, true};
+				boolean canSkip = true;
+				while(valid[1]==true && canSkip==true){
+					//Find out and print who's turn it is
+					if(myBoard.turnKeeper%2 == 0){
+						System.out.println("Reds up!");
+					}else{
+						System.out.println("Blacks up!");
+					}
+
+					//Get current and new coordinates of the chip moving
+					System.out.println("Please type the x coordinates of the piece you want to move.");
+					int currentX = scanner.nextInt();
+
+					System.out.println("Please type the y coordinates of the piece you want to move.");
+					int currentY = scanner.nextInt();
+
+					System.out.println("Please type the new x coordinates of where you want the piece to go.");
+					int newX = scanner.nextInt();
+
+					System.out.println("Please type the new y coordinates of where you want the piece to go.");
+					int newY = scanner.nextInt();
+
+					//Test if the input is valid if not have the user reenter the value
+					valid = Rules.validate(currentX, currentY, newX, newY, myBoard,0);
+					while(valid[0] == false){
+						System.out.println("Move not valid please choose a valid Move!");
+						System.out.println("Please type the x coordinates of the piece you want to move.");
+						currentX = scanner.nextInt();
+
+						System.out.println("Please type the y coordinates of the piece you want to move.");
+						currentY = scanner.nextInt();
+
+						System.out.println("Please type the new x coordinates of where you want the piece to go.");
+						newX = scanner.nextInt();
+
+						System.out.println("Please type the new y coordinates of where you want the piece to go.");
+						newY = scanner.nextInt();				
+
+						valid = Rules.validate(currentX, currentY, newX, newY, myBoard,0);
+					}
+
+					//check if a piece was taken or not during a move and does whats needed
+					if(valid[1] == true){
+						myBoard.board[newX][newY] = myBoard.board[currentX][currentY];
+						myBoard.board[currentX][currentY] = null;
+						myBoard.board[newX + (currentX-newX)/2][newY + (currentY-newY)/2] = null;
+					}else{
+						myBoard.board[newX][newY] = myBoard.board[currentX][currentY];
+						myBoard.board[currentX][currentY] = null;
+					}
+
+					//checks if theres a doubleSkip if so it makes them take it
+					boolean[] skipAgain = Rules.validate(newX, newY, newX+2, newY+2, myBoard,0);
+					boolean[] skipAgain1 = Rules.validate(newX, newY, newX+2, newY-2, myBoard,0);
+					boolean[] skipAgain2 = Rules.validate(newX, newY, newX-2, newY+2, myBoard,0);
+					boolean[] skipAgain3 = Rules.validate(newX, newY, newX-2, newY-2, myBoard,0);
+					if(skipAgain[0] == true
+							|| skipAgain1[0] == true
+							|| skipAgain2[0] == true
+							|| skipAgain3[0] == true){
+						canSkip = true;
+					}else{
+						canSkip = false;
+					}
+
+					//check for king
+					if(myBoard.turnKeeper%2 == 0 && newX == 7){
+						myBoard.board[newX][newY].isKing = true;
+					}else if(myBoard.turnKeeper%2 == 1 && newX == 0){
+						myBoard.board[newX][newY].isKing = true;
+					}
+
+					//print to let them know if its a double jump
+					if(valid[1]==true && canSkip==true){
+						System.out.println("You have a double jump!");
+					}
+
+					//Print new changed board
+					System.out.println(textView(myBoard));
+
+				}
+				//update turnKeeper
+				myBoard.turnKeeper++;
+
+				//count chips to check if games over
+				int[] check = Rules.gameOver(myBoard);
+				if(check[0]==1){
+					gameOver = true;
+				}
+			}
+
+		}else if(playerType == 2){
+			System.out.println(textView(myBoard));
+			while(gameOver == false){
+				//Find out and print who's turn it is
+				if(myBoard.turnKeeper%2 == 0){
+					//variables to check for double skip
+					boolean[] valid = {false, true};
+					boolean canSkip = true;
+					while(valid[1]==true && canSkip==true){
+						System.out.println("Reds up!");
+						//Get current and new coordinates of the chip moving
+						System.out.println("Please type the x coordinates of the piece you want to move.");
+						int currentX = scanner.nextInt();
+
+						System.out.println("Please type the y coordinates of the piece you want to move.");
+						int currentY = scanner.nextInt();
+
+						System.out.println("Please type the new x coordinates of where you want the piece to go.");
+						int newX = scanner.nextInt();
+
+						System.out.println("Please type the new y coordinates of where you want the piece to go.");
+						int newY = scanner.nextInt();
+
+						//Test if the input is valid if not have the user reenter the value
+						valid = Rules.validate(currentX, currentY, newX, newY, myBoard,0);
+						while(valid[0] == false){
+							System.out.println("Move not valid please choose a valid Move!");
+							System.out.println("Please type the x coordinates of the piece you want to move.");
+							currentX = scanner.nextInt();
+
+							System.out.println("Please type the y coordinates of the piece you want to move.");
+							currentY = scanner.nextInt();
+
+							System.out.println("Please type the new x coordinates of where you want the piece to go.");
+							newX = scanner.nextInt();
+
+							System.out.println("Please type the new y coordinates of where you want the piece to go.");
+							newY = scanner.nextInt();				
+
+							valid = Rules.validate(currentX, currentY, newX, newY, myBoard,0);
+						}
+
+						//check if a piece was taken or not during a move and does whats needed
+						if(valid[1] == true){
+							myBoard.board[newX][newY] = myBoard.board[currentX][currentY];
+							myBoard.board[currentX][currentY] = null;
+							myBoard.board[newX + (currentX-newX)/2][newY + (currentY-newY)/2] = null;
+						}else{
+							myBoard.board[newX][newY] = myBoard.board[currentX][currentY];
+							myBoard.board[currentX][currentY] = null;
+						}
+
+						//checks if theres a doubleSkip if so it makes them take it
+						boolean[] skipAgain = Rules.validate(newX, newY, newX+2, newY+2, myBoard,0);
+						boolean[] skipAgain1 = Rules.validate(newX, newY, newX+2, newY-2, myBoard,0);
+						boolean[] skipAgain2 = Rules.validate(newX, newY, newX-2, newY+2, myBoard,0);
+						boolean[] skipAgain3 = Rules.validate(newX, newY, newX-2, newY-2, myBoard,0);
+						if(skipAgain[0] == true
+								|| skipAgain1[0] == true
+								|| skipAgain2[0] == true
+								|| skipAgain3[0] == true){
+							canSkip = true;
+						}else{
+							canSkip = false;
+						}
+
+						//check for king
+						if(newX == 7){
+							myBoard.board[newX][newY].isKing = true;
+						}
+
+						//print to let them know if its a double jump
+						if(valid[1]==true && canSkip==true){
+							System.out.println("You have a double jump!");
+						}
+
+						//Print new changed board
+						System.out.println(textView(myBoard));
+
+					}
+
+				}else{
+					//variables to check for double skip
+					int[] move = {0,0,0,0,1};
+					System.out.println("Blacks up!");
+					move = AIRandom.makeMove(myBoard);
+
+					//makeMove
+					if(move[4] == 1){
+						myBoard.board[move[2]][move[3]] = myBoard.board[move[0]][move[1]];
+						myBoard.board[move[0]][move[1]] = null;
+						myBoard.board[move[2] + (move[0]-move[2])/2][move[3] + (move[1]-move[3])/2] = null;
+
+						//check for king
+						if(move[2] == 0){
+							myBoard.board[move[2]][move[3]].isKing = true;
+							System.out.println("King Me!");
+						}
+
+						boolean[] skipAgain = Rules.validate(move[2], move[3], move[2]+2, move[3]+2, myBoard,1);
+						boolean[] skipAgain1 = Rules.validate(move[2], move[3], move[2]+2, move[3]-2, myBoard,1);
+						boolean[] skipAgain2 = Rules.validate(move[2], move[3], move[2]-2, move[3]+2, myBoard,1);
+						boolean[] skipAgain3 = Rules.validate(move[2], move[3], move[2]-2, move[3]-2, myBoard,1);
+						int[] newMove = {move[2],move[3],move[2]+2,move[3]+2,1,move[5]+1};
+						int[] newMove1 = {move[2],move[3],move[2]+2,move[3]-2,1,move[5]+1};
+						int[] newMove2 = {move[2],move[3],move[2]-2,move[3]+2,1,move[5]+1};
+						int[] newMove3 = {move[2],move[3],move[2]-2,move[3]-2,1,move[5]+1};
+
+						while(skipAgain[0]==true || skipAgain1[0]==true 
+								|| skipAgain2[0]==true || skipAgain3[0]==true){
+
+							if(skipAgain[0] == true){
+								System.out.println("You have a double jump!");
+								AIRandom.add(newMove);
+								System.out.println(newMove[0]+","+newMove[1]+" "+newMove[2]+","+newMove[3]+" "+newMove[5]);
+								myBoard.board[newMove[2]][newMove[3]] = myBoard.board[newMove[0]][newMove[1]];
+								myBoard.board[newMove[0]][newMove[1]] = null;
+								myBoard.board[newMove[0]+1][newMove[1]+1] = null;
+								if(newMove[2] == 0){
+									myBoard.board[newMove[2]][newMove[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove[0] = newMove[2];
+								newMove[1] = newMove[3];
+								newMove[2] = newMove[2]+2;
+								newMove[3] = newMove[3]+2;
+								newMove[4] = 1;
+								newMove[5] = newMove[5]+1;
+								AIRandom.turnCount++;
+							} else if(skipAgain1[0] == true){
+								System.out.println("You have a double jump!");
+								AIRandom.add(newMove1);
+								System.out.println(newMove1[0]+","+newMove1[1]+" "+newMove1[2]+","+newMove1[3]+" "+newMove1[5]);
+								myBoard.board[newMove1[2]][newMove1[3]] = myBoard.board[newMove1[0]][newMove1[1]];
+								myBoard.board[newMove1[0]][newMove1[1]] = null;
+								myBoard.board[newMove1[0]+1][newMove1[1]-1] = null;
+								if(newMove1[2] == 0){
+									myBoard.board[newMove1[2]][newMove1[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove1[0] = newMove1[2];
+								newMove1[1] = newMove1[3];
+								newMove1[2] = newMove1[2]+2;
+								newMove1[3] = newMove1[3]-2;
+								newMove1[4] = 1;
+								newMove1[5] = newMove1[5]+1;
+								AIRandom.turnCount++;
+							} else if(skipAgain2[0] == true){
+								System.out.println("You have a double jump!");
+								AIRandom.add(newMove2);
+								System.out.println(newMove2[0]+","+newMove2[1]+" "+newMove2[2]+","+newMove2[3]+" "+newMove2[5]);
+								myBoard.board[newMove2[2]][newMove2[3]] = myBoard.board[newMove2[0]][newMove2[1]];
+								myBoard.board[newMove2[0]][newMove2[1]] = null;
+								myBoard.board[newMove2[0]-1][newMove2[1]+1] = null;
+								if(newMove2[2] == 0){
+									myBoard.board[newMove2[2]][newMove2[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove2[0] = newMove2[2];
+								newMove2[1] = newMove2[3];
+								newMove2[2] = newMove2[2]-2;
+								newMove2[3] = newMove2[3]+2;
+								newMove2[4] = 1;
+								newMove2[5] = newMove2[5]+1;
+								AIRandom.turnCount++;
+							} else if(skipAgain3[0] == true){
+								System.out.println("You have a double jump!");
+								AIRandom.add(newMove3);
+								System.out.println(newMove3[0]+","+newMove3[1]+" "+newMove3[2]+","+newMove3[3]+" "+newMove3[5]);
+								myBoard.board[newMove3[2]][newMove3[3]] = myBoard.board[newMove3[0]][newMove3[1]];
+								myBoard.board[newMove3[0]][newMove3[1]] = null;
+								myBoard.board[newMove3[0]-1][newMove3[1]-1] = null;
+								if(move[2] == 0){
+									myBoard.board[newMove3[2]][newMove3[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove3[0] = newMove3[2];
+								newMove3[1] = newMove3[3];
+								newMove3[2] = newMove3[2]-2;
+								newMove3[3] = newMove3[3]-2;
+								newMove3[4] = 1;
+								newMove3[5] = newMove3[5]+1;
+								AIRandom.turnCount++;
+							}
+							skipAgain = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard,1);
+							skipAgain1 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard,1);
+							skipAgain2 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard,1);
+							skipAgain3 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard,1);
+						}
+					}else{
+						myBoard.board[move[2]][move[3]] = myBoard.board[move[0]][move[1]];
+						myBoard.board[move[0]][move[1]] = null;
+						//check for king
+						if(move[2] == 0){
+							myBoard.board[move[2]][move[3]].isKing = true;
+							System.out.println("King Me!");
+						}
+					}
+
+					//Print new changed board
+					System.out.println(textView(myBoard));
+
+				}
+
+				//update turnKeeper
+				myBoard.turnKeeper++;
+
+				//count chips to check if games over
+				int[] check = Rules.gameOver(myBoard);
+				if(check[0]==1){
+					gameOver = true;
+				}
+			}
+		}else if(playerType == 3){
+			System.out.println(textView(myBoard));
+			while(gameOver == false){
+				//Find out and print who's turn it is
+				if(myBoard.turnKeeper%2 == 1){
+					//variables to check for double skip
+					boolean[] valid = {false, true};
+					boolean canSkip = true;
+					while(valid[1]==true && canSkip==true){
+						System.out.println("Blacks up!");
+						//Get current and new coordinates of the chip moving
+						System.out.println("Please type the x coordinates of the piece you want to move.");
+						int currentX = scanner.nextInt();
+
+						System.out.println("Please type the y coordinates of the piece you want to move.");
+						int currentY = scanner.nextInt();
+
+						System.out.println("Please type the new x coordinates of where you want the piece to go.");
+						int newX = scanner.nextInt();
+
+						System.out.println("Please type the new y coordinates of where you want the piece to go.");
+						int newY = scanner.nextInt();
+
+						//Test if the input is valid if not have the user reenter the value
+						valid = Rules.validate(currentX, currentY, newX, newY, myBoard,1);
+						while(valid[0] == false){
+							System.out.println("Move not valid please choose a valid Move!");
+							System.out.println("Please type the x coordinates of the piece you want to move.");
+							currentX = scanner.nextInt();
+
+							System.out.println("Please type the y coordinates of the piece you want to move.");
+							currentY = scanner.nextInt();
+
+							System.out.println("Please type the new x coordinates of where you want the piece to go.");
+							newX = scanner.nextInt();
+
+							System.out.println("Please type the new y coordinates of where you want the piece to go.");
+							newY = scanner.nextInt();				
+
+							valid = Rules.validate(currentX, currentY, newX, newY, myBoard,1);
+						}
+
+						//check if a piece was taken or not during a move and does whats needed
+						if(valid[1] == true){
+							myBoard.board[newX][newY] = myBoard.board[currentX][currentY];
+							myBoard.board[currentX][currentY] = null;
+							myBoard.board[newX + (currentX-newX)/2][newY + (currentY-newY)/2] = null;
+						}else{
+							myBoard.board[newX][newY] = myBoard.board[currentX][currentY];
+							myBoard.board[currentX][currentY] = null;
+						}
+
+						//checks if theres a doubleSkip if so it makes them take it
+						boolean[] skipAgain = Rules.validate(newX, newY, newX+2, newY+2, myBoard,1);
+						boolean[] skipAgain1 = Rules.validate(newX, newY, newX+2, newY-2, myBoard,1);
+						boolean[] skipAgain2 = Rules.validate(newX, newY, newX-2, newY+2, myBoard,1);
+						boolean[] skipAgain3 = Rules.validate(newX, newY, newX-2, newY-2, myBoard,1);
+						if(skipAgain[0] == true
+								|| skipAgain1[0] == true
+								|| skipAgain2[0] == true
+								|| skipAgain3[0] == true){
+							canSkip = true;
+						}else{
+							canSkip = false;
+						}
+
+						//check for king
+						if(newX == 0){
+							myBoard.board[newX][newY].isKing = true;
+						}
+
+						//print to let them know if its a double jump
+						if(valid[1]==true && canSkip==true){
+							System.out.println("You have a double jump!");
+						}
+
+						//Print new changed board
+						System.out.println(textView(myBoard));
+
+					}
+
+				}else{
+					//variables to check for double skip
+					int[] move = {0,0,0,0,1};
+					System.out.println("Reds up!");
+					move = basicAI.makeMove(myBoard);
+
+					//makeMove
+					if(move[4] == 1){
+						myBoard.board[move[2]][move[3]] = myBoard.board[move[0]][move[1]];
+						myBoard.board[move[0]][move[1]] = null;
+						myBoard.board[move[2] + (move[0]-move[2])/2][move[3] + (move[1]-move[3])/2] = null;
+
+						//check for king
+						if(move[2] == 7){
+							myBoard.board[move[2]][move[3]].isKing = true;
+							System.out.println("King Me!");
+						}
+
+						boolean[] skipAgain = Rules.validate(move[2], move[3], move[2]+2, move[3]+2, myBoard, 0);
+						boolean[] skipAgain1 = Rules.validate(move[2], move[3], move[2]+2, move[3]-2, myBoard, 0);
+						boolean[] skipAgain2 = Rules.validate(move[2], move[3], move[2]-2, move[3]+2, myBoard, 0);
+						boolean[] skipAgain3 = Rules.validate(move[2], move[3], move[2]-2, move[3]-2, myBoard, 0);
+						int[] newMove = {move[2],move[3],move[2]+2,move[3]+2,1,move[5]+1};
+						int[] newMove1 = {move[2],move[3],move[2]+2,move[3]-2,1,move[5]+1};
+						int[] newMove2 = {move[2],move[3],move[2]-2,move[3]+2,1,move[5]+1};
+						int[] newMove3 = {move[2],move[3],move[2]-2,move[3]-2,1,move[5]+1};
+
+						while(skipAgain[0]==true || skipAgain1[0]==true 
+								|| skipAgain2[0]==true || skipAgain3[0]==true){
+
+							if(skipAgain[0] == true){
+								System.out.println("You have a double jump!");
+								basicAI.add(newMove);
+								System.out.println(newMove[0]+","+newMove[1]+" "+newMove[2]+","+newMove[3]+" "+newMove[5]);
+								myBoard.board[newMove[2]][newMove[3]] = myBoard.board[newMove[0]][newMove[1]];
+								myBoard.board[newMove[0]][newMove[1]] = null;
+								myBoard.board[newMove[0]+1][newMove[1]+1] = null;
+								if(newMove[2] == 7){
+									myBoard.board[newMove[2]][newMove[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove[0] = newMove[2];
+								newMove[1] = newMove[3];
+								newMove[2] = newMove[2]+2;
+								newMove[3] = newMove[3]+2;
+								newMove[4] = 1;
+								newMove[5] = newMove[5]+1;
+								basicAI.turnCount++;
+							} else if(skipAgain1[0] == true){
+								System.out.println("You have a double jump!");
+								basicAI.add(newMove1);
+								System.out.println(newMove1[0]+","+newMove1[1]+" "+newMove1[2]+","+newMove1[3]+" "+newMove1[5]);
+								myBoard.board[newMove1[2]][newMove1[3]] = myBoard.board[newMove1[0]][newMove1[1]];
+								myBoard.board[newMove1[0]][newMove1[1]] = null;
+								myBoard.board[newMove1[0]+1][newMove1[1]-1] = null;
+								if(newMove1[2] == 7){
+									myBoard.board[newMove1[2]][newMove1[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove1[0] = newMove1[2];
+								newMove1[1] = newMove1[3];
+								newMove1[2] = newMove1[2]+2;
+								newMove1[3] = newMove1[3]-2;
+								newMove1[4] = 1;
+								newMove1[5] = newMove1[5]+1;
+								basicAI.turnCount++;
+							} else if(skipAgain2[0] == true){
+								System.out.println("You have a double jump!");
+								basicAI.add(newMove2);
+								System.out.println(newMove2[0]+","+newMove2[1]+" "+newMove2[2]+","+newMove2[3]+" "+newMove2[5]);
+								myBoard.board[newMove2[2]][newMove2[3]] = myBoard.board[newMove2[0]][newMove2[1]];
+								myBoard.board[newMove2[0]][newMove2[1]] = null;
+								myBoard.board[newMove2[0]-1][newMove2[1]+1] = null;
+								if(newMove2[2] == 7){
+									myBoard.board[newMove2[2]][newMove2[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove2[0] = newMove2[2];
+								newMove2[1] = newMove2[3];
+								newMove2[2] = newMove2[2]-2;
+								newMove2[3] = newMove2[3]+2;
+								newMove2[4] = 1;
+								newMove2[5] = newMove2[5]+1;
+								basicAI.turnCount++;
+							} else if(skipAgain3[0] == true){
+								System.out.println("You have a double jump!");
+								basicAI.add(newMove3);
+								System.out.println(newMove3[0]+","+newMove3[1]+" "+newMove3[2]+","+newMove3[3]+" "+newMove3[5]);
+								myBoard.board[newMove3[2]][newMove3[3]] = myBoard.board[newMove3[0]][newMove3[1]];
+								myBoard.board[newMove3[0]][newMove3[1]] = null;
+								myBoard.board[newMove3[0]-1][newMove3[1]-1] = null;
+								if(move[2] == 7){
+									myBoard.board[newMove3[2]][newMove3[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove3[0] = newMove3[2];
+								newMove3[1] = newMove3[3];
+								newMove3[2] = newMove3[2]-2;
+								newMove3[3] = newMove3[3]-2;
+								newMove3[4] = 1;
+								newMove3[5] = newMove3[5]+1;
+								basicAI.turnCount++;
+							}
+							skipAgain = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 0);
+							skipAgain1 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 0);
+							skipAgain2 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 0);
+							skipAgain3 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 0);
+						}
+					}else{
+						myBoard.board[move[2]][move[3]] = myBoard.board[move[0]][move[1]];
+						myBoard.board[move[0]][move[1]] = null;
+						//check for king
+						if(move[2] == 1){
+							myBoard.board[move[2]][move[3]].isKing = true;
+							System.out.println("King Me!");
+						}
+					}
+
+					//Print new changed board
+					System.out.println(textView(myBoard));
+
+				}
+
+				//update turnKeeper
+				myBoard.turnKeeper++;
+
+				//count chips to check if games over
+				int[] check = Rules.gameOver(myBoard);
+				if(check[0]==1){
+					gameOver = true;
+				}
+			}
+		}else if(playerType == 4){
+			System.out.println(textView(myBoard));
+			while(gameOver == false){
+				//Find out and print who's turn it is
+				if(myBoard.turnKeeper%2 == 0){
+					//variables to check for double skip
+					int[] move = {0,0,0,0,1};
+					System.out.println("Reds up!");
+					move = basicAI.makeMove(myBoard);
+
+					//makeMove
+					if(move[4] == 1){
+						myBoard.board[move[2]][move[3]] = myBoard.board[move[0]][move[1]];
+						myBoard.board[move[0]][move[1]] = null;
+						myBoard.board[move[2] + (move[0]-move[2])/2][move[3] + (move[1]-move[3])/2] = null;
+
+						//check for king
+						if(move[2] == 7){
+							myBoard.board[move[2]][move[3]].isKing = true;
+							System.out.println("King Me!");
+						}
+
+						boolean[] skipAgain = Rules.validate(move[2], move[3], move[2]+2, move[3]+2, myBoard, 0);
+						boolean[] skipAgain1 = Rules.validate(move[2], move[3], move[2]+2, move[3]-2, myBoard, 0);
+						boolean[] skipAgain2 = Rules.validate(move[2], move[3], move[2]-2, move[3]+2, myBoard, 0);
+						boolean[] skipAgain3 = Rules.validate(move[2], move[3], move[2]-2, move[3]-2, myBoard, 0);
+						int[] newMove = {move[2],move[3],move[2]+2,move[3]+2,1,move[5]+1};
+						int[] newMove1 = {move[2],move[3],move[2]+2,move[3]-2,1,move[5]+1};
+						int[] newMove2 = {move[2],move[3],move[2]-2,move[3]+2,1,move[5]+1};
+						int[] newMove3 = {move[2],move[3],move[2]-2,move[3]-2,1,move[5]+1};
+
+						while(skipAgain[0]==true || skipAgain1[0]==true 
+								|| skipAgain2[0]==true || skipAgain3[0]==true){
+
+							if(skipAgain[0] == true){
+								System.out.println("You have a double jump!");
+								basicAI.add(newMove);
+								System.out.println(newMove[0]+","+newMove[1]+" "+newMove[2]+","+newMove[3]+" "+newMove[5]);
+								myBoard.board[newMove[2]][newMove[3]] = myBoard.board[newMove[0]][newMove[1]];
+								myBoard.board[newMove[0]][newMove[1]] = null;
+								myBoard.board[newMove[0]+1][newMove[1]+1] = null;
+								if(newMove[2] == 7){
+									myBoard.board[newMove[2]][newMove[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove[0] = newMove[2];
+								newMove[1] = newMove[3];
+								newMove[2] = newMove[2]+2;
+								newMove[3] = newMove[3]+2;
+								newMove[4] = 1;
+								newMove[5] = newMove[5]+1;
+								basicAI.turnCount++;
+							} else if(skipAgain1[0] == true){
+								System.out.println("You have a double jump!");
+								basicAI.add(newMove1);
+								System.out.println(newMove1[0]+","+newMove1[1]+" "+newMove1[2]+","+newMove1[3]+" "+newMove1[5]);
+								myBoard.board[newMove1[2]][newMove1[3]] = myBoard.board[newMove1[0]][newMove1[1]];
+								myBoard.board[newMove1[0]][newMove1[1]] = null;
+								myBoard.board[newMove1[0]+1][newMove1[1]-1] = null;
+								if(newMove1[2] == 7){
+									myBoard.board[newMove1[2]][newMove1[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove1[0] = newMove1[2];
+								newMove1[1] = newMove1[3];
+								newMove1[2] = newMove1[2]+2;
+								newMove1[3] = newMove1[3]-2;
+								newMove1[4] = 1;
+								newMove1[5] = newMove1[5]+1;
+								basicAI.turnCount++;
+							} else if(skipAgain2[0] == true){
+								System.out.println("You have a double jump!");
+								basicAI.add(newMove2);
+								System.out.println(newMove2[0]+","+newMove2[1]+" "+newMove2[2]+","+newMove2[3]+" "+newMove2[5]);
+								myBoard.board[newMove2[2]][newMove2[3]] = myBoard.board[newMove2[0]][newMove2[1]];
+								myBoard.board[newMove2[0]][newMove2[1]] = null;
+								myBoard.board[newMove2[0]-1][newMove2[1]+1] = null;
+								if(newMove2[2] == 7){
+									myBoard.board[newMove2[2]][newMove2[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove2[0] = newMove2[2];
+								newMove2[1] = newMove2[3];
+								newMove2[2] = newMove2[2]-2;
+								newMove2[3] = newMove2[3]+2;
+								newMove2[4] = 1;
+								newMove2[5] = newMove2[5]+1;
+								basicAI.turnCount++;
+							} else if(skipAgain3[0] == true){
+								System.out.println("You have a double jump!");
+								basicAI.add(newMove3);
+								System.out.println(newMove3[0]+","+newMove3[1]+" "+newMove3[2]+","+newMove3[3]+" "+newMove3[5]);
+								myBoard.board[newMove3[2]][newMove3[3]] = myBoard.board[newMove3[0]][newMove3[1]];
+								myBoard.board[newMove3[0]][newMove3[1]] = null;
+								myBoard.board[newMove3[0]-1][newMove3[1]-1] = null;
+								if(move[2] == 7){
+									myBoard.board[newMove3[2]][newMove3[3]].isKing = true;
+									System.out.println("King Me!");
+								}
+								newMove3[0] = newMove3[2];
+								newMove3[1] = newMove3[3];
+								newMove3[2] = newMove3[2]-2;
+								newMove3[3] = newMove3[3]-2;
+								newMove3[4] = 1;
+								newMove3[5] = newMove3[5]+1;
+								basicAI.turnCount++;
+							}
+							skipAgain = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 0);
+							skipAgain1 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 0);
+							skipAgain2 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 0);
+							skipAgain3 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 0);
+						}
+					}else{
+						myBoard.board[move[2]][move[3]] = myBoard.board[move[0]][move[1]];
+						myBoard.board[move[0]][move[1]] = null;
+						//check for king
+						if(move[2] == 7){
+							myBoard.board[move[2]][move[3]].isKing = true;
+							System.out.println("King Me!");
+						}
+					}
+
+					//Print new changed board
+					System.out.println(textView(myBoard));
+
+				}else{
+					//variables to check for double skip
+					int[] move = {0,0,0,0,1};
+					System.out.println("Blacks up!");
+					
+					System.out.println("not there yet");
+					
+					move = AIRandom.makeMove(myBoard);
+
+					System.out.println("made it");
+					
+//					//makeMove
+//					if(move[4] == 1){
+//						myBoard.board[move[2]][move[3]] = myBoard.board[move[0]][move[1]];
+//						myBoard.board[move[0]][move[1]] = null;
+//						myBoard.board[move[2] + (move[0]-move[2])/2][move[3] + (move[1]-move[3])/2] = null;
+//
+//						//check for king
+//						if(move[2] == 0){
+//							myBoard.board[move[2]][move[3]].isKing = true;
+//							System.out.println("King Me!");
+//						}
+//
+//						boolean[] skipAgain = Rules.validate(move[2], move[3], move[2]+2, move[3]+2, myBoard, 1);
+//						boolean[] skipAgain1 = Rules.validate(move[2], move[3], move[2]+2, move[3]-2, myBoard, 1);
+//						boolean[] skipAgain2 = Rules.validate(move[2], move[3], move[2]-2, move[3]+2, myBoard, 1);
+//						boolean[] skipAgain3 = Rules.validate(move[2], move[3], move[2]-2, move[3]-2, myBoard, 1);
+//						int[] newMove = {move[2],move[3],move[2]+2,move[3]+2,1,move[5]+1};
+//						int[] newMove1 = {move[2],move[3],move[2]+2,move[3]-2,1,move[5]+1};
+//						int[] newMove2 = {move[2],move[3],move[2]-2,move[3]+2,1,move[5]+1};
+//						int[] newMove3 = {move[2],move[3],move[2]-2,move[3]-2,1,move[5]+1};
+//
+//						while(skipAgain[0]==true || skipAgain1[0]==true 
+//								|| skipAgain2[0]==true || skipAgain3[0]==true){
+//
+//							if(skipAgain[0] == true){
+//								System.out.println("You have a double jump!");
+//								AIRandom.add(newMove);
+//								System.out.println(newMove[0]+","+newMove[1]+" "+newMove[2]+","+newMove[3]+" "+newMove[5]);
+//								myBoard.board[newMove[2]][newMove[3]] = myBoard.board[newMove[0]][newMove[1]];
+//								myBoard.board[newMove[0]][newMove[1]] = null;
+//								myBoard.board[newMove[0]+1][newMove[1]+1] = null;
+//								if(newMove[2] == 0){
+//									myBoard.board[newMove[2]][newMove[3]].isKing = true;
+//									System.out.println("King Me!");
+//								}
+//								newMove[0] = newMove[2];
+//								newMove[1] = newMove[3];
+//								newMove[2] = newMove[2]+2;
+//								newMove[3] = newMove[3]+2;
+//								newMove[4] = 1;
+//								newMove[5] = newMove[5]+1;
+//								AIRandom.turnCount++;
+//							} else if(skipAgain1[0] == true){
+//								System.out.println("You have a double jump!");
+//								AIRandom.add(newMove1);
+//								System.out.println(newMove1[0]+","+newMove1[1]+" "+newMove1[2]+","+newMove1[3]+" "+newMove1[5]);
+//								myBoard.board[newMove1[2]][newMove1[3]] = myBoard.board[newMove1[0]][newMove1[1]];
+//								myBoard.board[newMove1[0]][newMove1[1]] = null;
+//								myBoard.board[newMove1[0]+1][newMove1[1]-1] = null;
+//								if(newMove1[2] == 0){
+//									myBoard.board[newMove1[2]][newMove1[3]].isKing = true;
+//									System.out.println("King Me!");
+//								}
+//								newMove1[0] = newMove1[2];
+//								newMove1[1] = newMove1[3];
+//								newMove1[2] = newMove1[2]+2;
+//								newMove1[3] = newMove1[3]-2;
+//								newMove1[4] = 1;
+//								newMove1[5] = newMove1[5]+1;
+//								AIRandom.turnCount++;
+//							} else if(skipAgain2[0] == true){
+//								System.out.println("You have a double jump!");
+//								AIRandom.add(newMove2);
+//								System.out.println(newMove2[0]+","+newMove2[1]+" "+newMove2[2]+","+newMove2[3]+" "+newMove2[5]);
+//								myBoard.board[newMove2[2]][newMove2[3]] = myBoard.board[newMove2[0]][newMove2[1]];
+//								myBoard.board[newMove2[0]][newMove2[1]] = null;
+//								myBoard.board[newMove2[0]-1][newMove2[1]+1] = null;
+//								if(newMove2[2] == 0){
+//									myBoard.board[newMove2[2]][newMove2[3]].isKing = true;
+//									System.out.println("King Me!");
+//								}
+//								newMove2[0] = newMove2[2];
+//								newMove2[1] = newMove2[3];
+//								newMove2[2] = newMove2[2]-2;
+//								newMove2[3] = newMove2[3]+2;
+//								newMove2[4] = 1;
+//								newMove2[5] = newMove2[5]+1;
+//								AIRandom.turnCount++;
+//							} else if(skipAgain3[0] == true){
+//								System.out.println("You have a double jump!");
+//								AIRandom.add(newMove3);
+//								System.out.println(newMove3[0]+","+newMove3[1]+" "+newMove3[2]+","+newMove3[3]+" "+newMove3[5]);
+//								myBoard.board[newMove3[2]][newMove3[3]] = myBoard.board[newMove3[0]][newMove3[1]];
+//								myBoard.board[newMove3[0]][newMove3[1]] = null;
+//								myBoard.board[newMove3[0]-1][newMove3[1]-1] = null;
+//								if(move[2] == 0){
+//									myBoard.board[newMove3[2]][newMove3[3]].isKing = true;
+//									System.out.println("King Me!");
+//								}
+//								newMove3[0] = newMove3[2];
+//								newMove3[1] = newMove3[3];
+//								newMove3[2] = newMove3[2]-2;
+//								newMove3[3] = newMove3[3]-2;
+//								newMove3[4] = 1;
+//								newMove3[5] = newMove3[5]+1;
+//								AIRandom.turnCount++;
+//							}
+//							skipAgain = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 1);
+//							skipAgain1 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 1);
+//							skipAgain2 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 1);
+//							skipAgain3 = Rules.validate(newMove[2], newMove[3], newMove[2], newMove[3], myBoard, 1);
+//						}
+//					}else{
+//						myBoard.board[move[2]][move[3]] = myBoard.board[move[0]][move[1]];
+//						myBoard.board[move[0]][move[1]] = null;
+//						//check for king
+//						if(move[2] == 0){
+//							myBoard.board[move[2]][move[3]].isKing = true;
+//							System.out.println("King Me!");
+//						}
+//					}
+
+					//Print new changed board
+					System.out.println(textView(myBoard));
+
+				}
+
+				//update turnKeeper
+				myBoard.turnKeeper++;
+
+				//count chips to check if games over
+				int[] check = Rules.gameOver(myBoard);
+				if(check[0]==1){
+					gameOver = true;
+				}
+			}
+		}
+
+	}
+
+	public static String textView(Board board){
+		String textBoard = "";
+		for(int x = board.rows-1; x>=0; x--){
+			for(int y = board.columns-1; y>=0; y--){
+				if(board.board[x][y] == null && y == 0){
+					textBoard += "|___|"+x;
+				}else if(board.board[x][y] == null){
+					textBoard += "|___";
+				}else if(board.board[x][y].color == 0 && board.board[x][y].isKing == true && y == 0){
+					textBoard += "|_R_|"+x;
+				}else if(board.board[x][y].color == 0 && y == 0){
+					textBoard += "|_r_|"+x;
+				}else if(board.board[x][y].color == 0 && board.board[x][y].isKing == true){
+					textBoard += "|_R_";
+				}else if(board.board[x][y].color == 0){
+					textBoard += "|_r_";
+				}else if(board.board[x][y].color == 1 && board.board[x][y].isKing == true && y == 0){
+					textBoard += "|_B_|"+x;
+				}else if(board.board[x][y].color == 1 && y == 0){
+					textBoard += "|_b_|"+x;
+				}else if( board.board[x][y].color == 1 && board.board[x][y].isKing == true){
+					textBoard += "|_B_";
+				}else if( board.board[x][y].color == 1){
+					textBoard += "|_b_";
+				}
+			}
+			textBoard += "\n";
+		}
+		textBoard += " 23   22  21  20  19  18  17  16  15  14  13  12  11  10  9   8   7   6   5   4   3   2   1   0";
+		return textBoard;
+	}
+
+
+}
